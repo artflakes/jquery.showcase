@@ -102,6 +102,7 @@
         img.src = opt.images[i].url;
         img.alt = opt.images[i].description || "";
         var $link = $("<a />").attr({ "href": opt.images[i].link || "#", "target": opt.images[i].target || "_self" });
+        $link.css({ opacity: 0 });
         $link.append(img);
         $container.append($link);
       }
