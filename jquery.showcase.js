@@ -1,7 +1,7 @@
-﻿// -----------------------------------------------------------------------
-// Eros Fratini - eros@recoding.it
-// jquery.showcase 2.0.2
-//
+/*!-----------------------------------------------------------------------
+   Eros Fratini - eros@recoding.it
+   jquery.showcase 2.0.2 
+ **/
 // 02/11/2010 - Fixed and issue with jQuery 1.4.3, some tests with IE9 beta
 // 26/04/2010 - Begin some changes
 // 02/02/2010 - Wow, a fix about 10 minute after release....
@@ -23,7 +23,7 @@
         
         // Retrieve options
         var opt;
-        opt = $.extend({}, $.fn.showcase.defaults, options);
+        opt = $.extend({ }, $.fn.showcase.defaults, options);
 
 		if (!/images|titles/.test(opt.linksOn)) 
         {
@@ -54,8 +54,13 @@
             
 			if (options.navigator.css)
 			{
-				opt.navigator.css = $.extend({}, $.fn.showcase.defaults.navigator.css, options.navigator.css);
+        // use global zIndex as default, can be overidden with
+        // navigator css settings
+        opt.navigator.css = $.extend({ "z-index": opt.zIndex }, $.fn.showcase.defaults.navigator.css, options.navigator.css);
 			}
+      else {
+        opt.navigator.css["z-index"] = opt.zIndex;
+      }
 			
             if (options.navigator.item) { 
 				opt.navigator.item = $.extend({}, $.fn.showcase.defaults.navigator.item, options.navigator.item);
@@ -89,9 +94,10 @@
         // Check loading mode.
         // If there's something in opt.images[], I'll load them asynchronously, 
         // it will be nice to have width and height setted, in order to define the $container sizes
-        if (opt.images.length != 0) {
+        if (opt.images.length !== 0) {
+            var i;
             $container.css({ width: opt.css.width, height: opt.css.height, overflow: "hidden" });
-            for (var i in opt.images) {
+            for (i in opt.images) {
                 var img = new Image();
                 img.src = opt.images[i].url;
                 img.alt = opt.images[i].description || "";
@@ -115,7 +121,7 @@
 		$.fn.extend({
 			pause: function() { $container.data("stopped", true); },
 			go: function() { $container.data("stopped", false); }
-		}) 
+		});
     };
 
 	// This will start all showcase's stuffs
@@ -177,7 +183,9 @@
                     $(this).css("top", i*imagesize.height);
                     break;
                 case "fade":
-                    $(this).css({ top: "0", left: "0", opacity:1, "z-index": 1000-i });
+                    // Hide all but the first Image by default,›
+                    // let the rest fade in…
+                    $(this).css({ top: "0", left: "0", opacity: (i == 0) ? 1 : 0, "z-index": opt.zIndex - i });
                     break;
             }
             
@@ -257,7 +265,7 @@
                 opacity: 0.50,
                 width: "100%",
 			 	overflow: "hidden",
-    	   	   	"z-index": 10002,
+    	   	   	"z-index": opt.zIndex + 2,
     	   	   	position: "absolute"
             });
             
@@ -306,10 +314,10 @@
             case "vertical-slider": $container.find("#slider").stop().animate({ top: - (i*imagesize.height) }, opt.animation.speed, opt.animation.easefunction);
                 break;
             case "fade":
-                $container.css({ "z-index": "1001" });
-                if ($a_this.css("z-index") != "1000") 
+                $container.css({ "z-index": opt.zIndex + 1 });
+                if ($a_this.css("z-index") != opt.zIndex.toString()) 
                 {
-                    $a_this.css({ "z-index": "1000", opacity: 0 });
+                    $a_this.css({ "z-index": opt.zIndex, opacity: 0 });
 					
                     $a.not($a_this).each( function() {
 						if ($(this).css("z-index") != "auto")
@@ -353,6 +361,7 @@
 	
     $.fn.showcase.defaults = {
         images: [],
+        zIndex: 1000,
 		linksOn: "images",
 		css: {	position: "relative", 
 				overflow: "hidden",
@@ -370,8 +379,7 @@
 		navigator: { css: {	border: "none",
 					        padding: "5px",
 							margin: "0px",
-							position: "absolute", 
-			            	"z-index": 1000
+							position: "absolute"
 					},
 					position: "top-right",
 					orientation: "horizontal",
